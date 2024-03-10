@@ -14,10 +14,9 @@ class Voter {
     private String listSelection;
     private int arrivalTime;
     private Thread thread;
-    private GeneralSystem generalSystem;
 
     public Voter(String firstName, String lastName, String id, int age, String mayorSelection, String listSelection,
-            int arrivalTime) {
+            int arrivalTime, QueueManager entranceQueue) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.id = id;
@@ -25,30 +24,54 @@ class Voter {
         this.mayorSelection = mayorSelection;
         this.listSelection = listSelection;
         this.arrivalTime = arrivalTime;
+        goVote(entranceQueue);
     }
 
-    public void start() {
-        VotingProcess process = new VotingProcess(this);
+    public void goVote(QueueManager entranceQueue) {
+        Thread thread = new Thread(() -> {
+            goToKalpi(entranceQueue);
+            if (passedCheckPoint()) {
+                vote();
+            }
+            goHome();
+        });
+        thread.start();
     }
 
-    public void setGeneralSystem(GeneralSystem generalSystem) {
-        this.generalSystem = generalSystem;
+    public void goToKalpi(QueueManager entranceQueue) {
+        // handle the case of another thread interrupting this thread's sleep
+        try {
+            Thread.sleep(getArrivalTime() * 1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        entranceQueue.voterArrived(this);
+    }
+
+    public Boolean passedCheckPoint() {
+        return true;
+    }
+
+    public void vote() {
+    }
+
+    public void goHome() {
     }
 
     public int getArrivalTime() {
-        return this.arrivalTime;
+        return arrivalTime;
     }
 
     public String getIdNumber() {
-        return this.id;
+        return id;
     }
 
     public Integer getAge() {
-        return this.age;
+        return age;
     }
 
     public Thread getThread() {
-        return this.thread;
+        return thread;
     }
 
 }

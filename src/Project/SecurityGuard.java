@@ -8,15 +8,31 @@ public class SecurityGuard {
     private Boolean isAvailable;
     private Boolean isOpen;
 
-    public SecurityGuard(List<String> voterIdList) {
+    public SecurityGuard(List<String> voterIdList, QueueManager entranceQueue, QueueManager voteQueue) {
         this.voterIdList = voterIdList;
-        this.isAvailable = true;
         this.isOpen = true;
+        workDay(entranceQueue, voteQueue);
     }
 
-    public boolean validateVoter(Voter voter) {
-        this.isAvailable = false;
+    public void workDay(QueueManager entranceQueue, QueueManager voteQueue) {
+        Thread thread = new Thread(() -> {
+            while (isOpen) {
+                if (!entranceQueue.isEmpty()) {
+                    Voter voter = entranceQueue.getFirstVoter();
+                    if (voterValidated(voter)) {
+                        // pass voter
+                        voteQueue.voterArrived(voter);
+                    } else {
+                        // send voter home
+                        voter.goHome();
+                    }
+                }
+            }
+        });
+        thread.start();
+    }
 
+    public Boolean voterValidated(Voter voter) {
         Random random = new Random();
         int minSeconds = 2;
         int maxSeconds = 5;
@@ -33,17 +49,13 @@ public class SecurityGuard {
             System.out.println("ID card verification process interrupted.");
         }
 
-        if (!this.isOpen || !voterIdList.contains(voter.getIdNumber()) || voter.getAge() < 17) {
-            return false;
+        if (isOpen && voterIdList.contains(voter.getIdNumber()) && voter.getAge() >= 17) {
+            return true;
         }
-        return true;
+        return false;
     }
 
-    public void setIsOpen(Boolean isOpen) {
-        this.isOpen = isOpen;
-    }
-
-    public Boolean getIsAvailible() {
-        return this.isAvailable;
+    public void closeCheckPost() {
+        isOpen = false;
     }
 }
