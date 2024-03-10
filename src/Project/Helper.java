@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Helper {
+    public static synchronized void syncPrint(String format, Object... args) {
+        System.out.printf(format, args);
+    }
 
     public static List<String> readLinesFromFile(String filePath) {
         List<String> lines = new ArrayList<>();
@@ -33,7 +36,7 @@ public class Helper {
         return IDs;
     }
 
-    public static List<Voter> getVotersList(String filePath) {
+    public static List<Voter> getVotersList(String filePath, QueueManager entranceQueue) {
         List<String> lines = readLinesFromFile(filePath);
         List<Voter> voters = new ArrayList<>();
 
@@ -51,7 +54,8 @@ public class Helper {
             int arrivalTime = Integer.parseInt(parts[6]);
 
             // Create a new Voter object and add it to the list
-            Voter voter = new Voter(firstName, lastName, id, age, mayorSelection, listSelection, arrivalTime);
+            Voter voter = new Voter(firstName, lastName, id, age, mayorSelection, listSelection, arrivalTime,
+                    entranceQueue);
             voters.add(voter);
         }
         return voters;

@@ -22,8 +22,10 @@ public class SecurityGuard {
                     if (voterValidated(voter)) {
                         // pass voter
                         voteQueue.voterArrived(voter);
+                        Helper.syncPrint("voter with id %s is heading to the vote queue", voter.getIdNumber());
                     } else {
                         // send voter home
+                        Helper.syncPrint("voter with id %s is not valid. he is going home.", voter.getIdNumber());
                         voter.goHome();
                     }
                 }
@@ -41,12 +43,12 @@ public class SecurityGuard {
         int randomSeconds = random.nextInt(maxSeconds - minSeconds + 1) + minSeconds;
 
         // Simulate ID card verification process by waiting for the random duration
-        System.out.println("Starting ID card verification...");
+        Helper.syncPrint("Starting ID card verification...");
         try {
             // Sleep for the random duration
             Thread.sleep(randomSeconds * 1000); // Convert seconds to milliseconds
         } catch (InterruptedException e) {
-            System.out.println("ID card verification process interrupted.");
+            Helper.syncPrint("ID card verification process interrupted.");
         }
 
         if (isOpen && voterIdList.contains(voter.getIdNumber()) && voter.getAge() >= 17) {

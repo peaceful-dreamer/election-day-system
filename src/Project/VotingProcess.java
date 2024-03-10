@@ -22,7 +22,7 @@ class VotingProcess {
             try {
                 Thread.sleep(this.voter.getArrivalTime() * 1000);
                 // Add this voter to the entrance voter queue
-                System.out.println("Voter " + this.voter.getIdNumber() + " has been added after "
+                Helper.syncPrint("Voter " + this.voter.getIdNumber() + " has been added after "
                         + this.voter.getArrivalTime() + " seconds to the entrance voter queue.");
 
             } catch (InterruptedException e) {
@@ -39,7 +39,7 @@ class VotingProcess {
     // // Add this voter to the entrance voter queue
     // synchronized (entranceVoterQueue) {
     // entranceVoterQueue.push(this);
-    // System.out.println("Voter " + name + " has been added to the entrance voter
+    // Helper.syncPrint("Voter " + name + " has been added to the entrance voter
     // queue.");
     // }
     // } catch (InterruptedException e) {

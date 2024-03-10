@@ -18,16 +18,5 @@ public class GeneralSystem {
         this.ids = ids;
         this.securityGuardNumber = securityGuardNumber;
         this.timeUntilClosingNumber = timeUntilClosingNumber;
-
-        start();
-    }
-
-    public void start() {
-        Thread thread = new Thread(() -> {
-            for (Voter voter : this.voters) {
-                voter.start();
-            }
-        });
-        thread.start();
     }
 }
