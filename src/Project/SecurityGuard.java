@@ -10,7 +10,7 @@ public class SecurityGuard {
 
     public SecurityGuard(List<String> voterIdList, QueueManager entranceQueue, QueueManager voteQueue) {
         this.voterIdList = voterIdList;
-        this.isOpen = true;
+        isOpen = true;
         workDay(entranceQueue, voteQueue);
     }
 

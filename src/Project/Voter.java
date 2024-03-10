@@ -30,10 +30,10 @@ class Voter {
     public void goVote(QueueManager entranceQueue) {
         Thread thread = new Thread(() -> {
             goToKalpi(entranceQueue);
-            if (passedCheckPoint()) {
-                vote();
-            }
-            goHome();
+            // if (isEnterAllowed()) {
+            // vote();
+            // }
+            // goHome();
         });
         thread.start();
     }
@@ -60,6 +60,14 @@ class Voter {
 
     public int getArrivalTime() {
         return arrivalTime;
+    }
+
+    public String getElectedMayor() {
+        return mayorSelection;
+    }
+
+    public String getElectedParty() {
+        return listSelection;
     }
 
     public String getIdNumber() {
