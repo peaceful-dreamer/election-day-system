@@ -1,13 +1,17 @@
 package Project;
 
-import javax.swing.*;
-import javax.xml.transform.Source;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.concurrent.CountDownLatch;
+import java.awt.event.WindowEvent;
+import java.awt.Dimension;
 
-public class VotingSystemGUI extends JFrame {
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+public class VotingSystemGUI implements ActionListener {
     private JLabel securityGuardLabel;
     private JLabel securityGuardErrorLabel;
     private JLabel closingTimeLabel;
@@ -15,83 +19,97 @@ public class VotingSystemGUI extends JFrame {
     private JLabel typeErrorLabel;
     private JTextField securityGuardTextField;
     private JTextField closingTimeTextField;
-    private JButton startButton;
-    private JButton exitButton;
+    private JButton start;
+    private JButton close;
+    private JPanel panel;
+    private int windowWidth;
+    private int WindowHight;
+    private JFrame frame;
 
     public VotingSystemGUI() {
-        setTitle("Voting System");
-        setSize(350, 300);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(null);
+        windowWidth = 370;
+        WindowHight = 250;
+
+        panel = new JPanel();
+        panel.setLayout(null);
 
         securityGuardLabel = new JLabel("Number of Security Guards (1-4):");
         securityGuardLabel.setBounds(20, 20, 200, 20);
-        add(securityGuardLabel);
+        panel.add(securityGuardLabel);
 
         securityGuardTextField = new JTextField("1");
         securityGuardTextField.setBounds(220, 20, 100, 20);
-        add(securityGuardTextField);
+        panel.add(securityGuardTextField);
 
         securityGuardErrorLabel = new JLabel("");
         securityGuardErrorLabel.setBounds(20, 40, 200, 20);
-        add(securityGuardErrorLabel);
+        panel.add(securityGuardErrorLabel);
 
         closingTimeLabel = new JLabel("Closing Time (0-24):");
         closingTimeLabel.setBounds(20, 70, 200, 20);
-        add(closingTimeLabel);
+        panel.add(closingTimeLabel);
 
         closingTimeTextField = new JTextField("8");
         closingTimeTextField.setBounds(220, 70, 100, 20);
-        add(closingTimeTextField);
+        panel.add(closingTimeTextField);
 
         closingTimeErrorLabel = new JLabel("");
         closingTimeErrorLabel.setBounds(20, 90, 200, 20);
-        add(closingTimeErrorLabel);
+        panel.add(closingTimeErrorLabel);
 
         typeErrorLabel = new JLabel("");
         typeErrorLabel.setBounds(20, 120, 200, 20);
-        add(typeErrorLabel);
+        panel.add(typeErrorLabel);
 
-        startButton = new JButton("START");
-        startButton.setBounds(80, 160, 100, 30);
-        startButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                AppConfig.reset();
-                // check if values correct
-                try {
-                    Integer securityGuardNumber = Integer.parseInt(securityGuardTextField.getText());
-                    Double timeUntilClosingNumber = Double.parseDouble(closingTimeTextField.getText());
+        start = new JButton("Start");
+        close = new JButton("Exit");
+        start.addActionListener(this);
+        start.setActionCommand("Start");
+        close.addActionListener(this);
+        close.setActionCommand("Close");
+        start.setBounds(20, 160, 100, 30);
+        close.setBounds(220, 160, 100, 30);
 
-                    if (!AppConfig.setSecurityGuardNumber(securityGuardNumber)) {
-                        securityGuardErrorLabel.setText("only 1-4 allowed");
-                    }
+        start.addActionListener(this);
+        start.setActionCommand("Start");
+        close.addActionListener(this);
+        close.setActionCommand("Close");
 
-                    if (!AppConfig.setTimeUntilClosingNumber(timeUntilClosingNumber)) {
-                        closingTimeErrorLabel.setText("only 0.0-24.0 allowed");
-                    }
-                } catch (NumberFormatException except) {
-                    typeErrorLabel.setText("only numbers allowed");
-                }
+        panel.add(start);
+        panel.add(close);
 
-                if (AppConfig.isConfigured()) {
-                    AppConfig.startApp();
-                }
-            }
-        });
-        add(startButton);
+        frame = new JFrame("Kalpi simulator");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        exitButton = new JButton("EXIT");
-        exitButton.setBounds(220, 160, 100, 30);
-        exitButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dispose(); // Close the GUI window
-            }
-        });
-        add(exitButton);
-
-        setVisible(true);
+        frame.setContentPane(panel);
+        frame.setPreferredSize(new Dimension(windowWidth, WindowHight));
+        frame.pack();
+        frame.setVisible(true);
     }
 
+    @Override
+    public void actionPerformed(ActionEvent arg0) {
+        if ("Start".equals(arg0.getActionCommand())) {
+            try {
+                Integer securityGuardNumber = Integer.parseInt(securityGuardTextField.getText());
+                Double timeUntilClosingNumber = Double.parseDouble(closingTimeTextField.getText());
+
+                if (!AppConfig.setSecurityGuardNumber(securityGuardNumber)) {
+                    securityGuardErrorLabel.setText("only 1-4 allowed");
+                }
+
+                if (!AppConfig.setTimeUntilClosingNumber(timeUntilClosingNumber)) {
+                    closingTimeErrorLabel.setText("only 0.0-24.0 allowed");
+                }
+            } catch (NumberFormatException except) {
+                typeErrorLabel.setText("only numbers allowed");
+            }
+
+            if (AppConfig.isConfigured()) {
+                AppConfig.startApp();
+            }
+        } else if ("Close".equals(arg0.getActionCommand())) {
+            frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+        }
+    }
 }
