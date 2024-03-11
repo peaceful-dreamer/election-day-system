@@ -16,11 +16,12 @@ public class SecurityGuard extends ServiceGiver {
         if (voterValidated(voter)) {
             // pass voter
             nextQueue.voterArrived(voter);
-            Helper.syncPrint("%s %s passed the security check.", voter.getFirstName(), voter.getLastName());
+            Helper.syncPrint("%s: %s %s passed the security check.", this.toString(), voter.getFirstName(),
+                    voter.getLastName());
         } else {
             // send voter home
-            Helper.syncPrint("%s %s didn't pass the security check. he is going home.",
-                    voter.getFirstName(), voter.getLastName());
+            Helper.syncPrint("%s: %s %s didn't pass the security check. he is going home.",
+                    this.toString(), voter.getFirstName(), voter.getLastName());
             voter.goHome();
         }
     }
