@@ -15,8 +15,10 @@ public class Queue<T> {
 	 * 
 	 * @param element
 	 */
-	public synchronized void push(T element) {
-		Queue_vec.add(element);
+	public void push(T element) {
+		synchronized (Queue_vec) {
+			Queue_vec.add(element);
+		}
 	}
 
 	/**
@@ -24,17 +26,22 @@ public class Queue<T> {
 	 * 
 	 * @return first element in Queue vector
 	 */
-	public synchronized T pop() {
-		if (!Queue_vec.isEmpty())
-			return Queue_vec.remove(0);
-		else
-			return null;
+	public T pop() {
+		synchronized (Queue_vec) {
+			if (!Queue_vec.isEmpty())
+				return Queue_vec.remove(0);
+			else
+				return null;
+		}
+
 	}
 
 	/**
 	 * @return is the Queue vector empty
 	 */
-	public synchronized Boolean isEmpty() {
-		return Queue_vec.size() == 0;
+	public Boolean isEmpty() {
+		synchronized (Queue_vec) {
+			return Queue_vec.size() == 0;
+		}
 	}
 }

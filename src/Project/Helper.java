@@ -10,7 +10,7 @@ import java.util.List;
 
 public class Helper {
     public static synchronized void syncPrint(String format, Object... args) {
-        System.out.printf(format, args);
+        System.out.println(String.format(format, args));
     }
 
     public static List<String> readLinesFromFile(String filePath) {

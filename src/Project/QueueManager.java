@@ -9,15 +9,15 @@ public class QueueManager {
         queue = new Queue<>();
     }
 
-    public void voterArrived(Voter voter) {
+    public synchronized void voterArrived(Voter voter) {
         queue.push(voter);
     }
 
-    public Voter getFirstVoter() {
+    public synchronized Voter getFirstVoter() {
         return queue.pop();
     }
 
-    public Boolean isEmpty() {
+    public synchronized Boolean isEmpty() {
         return queue.isEmpty();
     }
 }

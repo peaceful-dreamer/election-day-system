@@ -45,7 +45,9 @@ class Voter {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        entranceQueue.voterArrived(this);
+        synchronized (entranceQueue) {
+            entranceQueue.voterArrived(this);
+        }
     }
 
     public Boolean passedCheckPoint() {
@@ -64,6 +66,14 @@ class Voter {
 
     public String getElectedMayor() {
         return mayorSelection;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
     }
 
     public String getElectedParty() {
