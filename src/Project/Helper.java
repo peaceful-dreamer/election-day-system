@@ -60,4 +60,15 @@ public class Helper {
         }
         return voters;
     }
+
+    public static void waitForObject(Object object) {
+        synchronized (object) {
+            try {
+                object.wait();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                System.err.println("Thread Interrupted");
+            }
+        }
+    }
 }

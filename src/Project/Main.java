@@ -9,7 +9,7 @@ public class Main {
         if (!AppConfig.isFilePathsSet()) {
             System.out.println("did you enter the correct files' full path in main function?");
         } else {
-            new VotingSystemGUI();
+            new GUI();
         }
     }
 }

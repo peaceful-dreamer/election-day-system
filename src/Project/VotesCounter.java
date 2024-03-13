@@ -4,15 +4,47 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class VotesCounter {
+public class VotesCounter implements Runnable {
     private List<VoteTicket> voteTickets;
 
     public VotesCounter(List<VoteTicket> voteTickets) {
-        countTickets(voteTickets);
+        this.voteTickets = voteTickets;
     }
 
-    public void countTickets(List<VoteTicket> voteTickets) {
-        // Start counting votes and announce the results
+    public void run() {
+        waitToCloseEntrance();
+        waitUntilEverybodyFinished();
+        Helper.syncPrint("Voting is over, let’s start counting");
+        countTickets();
+    }
+
+    public static void waitToCloseEntrance() {
+        // sleep until it is time to stop new voters from entering and handle errors if
+        // needed
+        try {
+            Thread.sleep((long) (SimulationManager.getTimeUntilClosingNumber() * 1000)); // Convert seconds to
+                                                                                         // milliseconds
+        } catch (InterruptedException e) {
+            Helper.syncPrint("InterruptedException");
+        }
+
+        SimulationManager.setIsOpen(false);
+    }
+
+    public void waitUntilEverybodyFinished() {
+        synchronized (SimulationManager.class) {
+            while (!SimulationManager.getFinished()) {
+                try {
+                    SimulationManager.class.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public void countTickets() {
+        List<VoteTicket> voteTickets = this.voteTickets;
 
         // Map to count votes for each mayor
         Map<String, Integer> mayorVotes = new HashMap<>();
@@ -38,7 +70,11 @@ public class VotesCounter {
         // Announce the results
         Helper.syncPrint("The next mayor is: " + nextMayor);
         Helper.syncPrint("The list with most votes is: " + nextParty);
-
+        // try {
+        // Thread.currentThread().join();
+        // } catch (InterruptedException e) {
+        // e.printStackTrace();
+        // }
     }
 
     private void incrementVote(Map<String, Integer> voteMap, String key) {

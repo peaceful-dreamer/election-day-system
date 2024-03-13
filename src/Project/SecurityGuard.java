@@ -22,15 +22,6 @@ public class SecurityGuard extends ServiceGiver {
             // send voter home
             Helper.syncPrint("%s: %s %s didn't pass the security check. he is going home.",
                     this.toString(), voter.getFirstName(), voter.getLastName());
-            voter.goHome();
-        }
-    }
-
-    @Override
-    public void close() {
-        // on closing time send all voters home
-        while (!getQueue().isEmpty()) {
-            getQueue().getFirstVoter().goHome();
         }
     }
 
@@ -55,5 +46,4 @@ public class SecurityGuard extends ServiceGiver {
         }
         return false;
     }
-
 }

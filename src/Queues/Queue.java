@@ -2,7 +2,6 @@ package Queues;
 
 import java.util.Vector;
 
-// synchronized queue
 public class Queue<T> {
 	private Vector<T> Queue_vec;
 
@@ -16,9 +15,8 @@ public class Queue<T> {
 	 * @param element
 	 */
 	public void push(T element) {
-		synchronized (Queue_vec) {
-			Queue_vec.add(element);
-		}
+		Queue_vec.add(element);
+
 	}
 
 	/**
@@ -27,21 +25,20 @@ public class Queue<T> {
 	 * @return first element in Queue vector
 	 */
 	public T pop() {
-		synchronized (Queue_vec) {
-			if (!Queue_vec.isEmpty())
-				return Queue_vec.remove(0);
-			else
-				return null;
-		}
-
+		if (!Queue_vec.isEmpty())
+			return Queue_vec.remove(0);
+		else
+			return null;
 	}
 
 	/**
 	 * @return is the Queue vector empty
 	 */
 	public Boolean isEmpty() {
-		synchronized (Queue_vec) {
-			return Queue_vec.size() == 0;
-		}
+		return Queue_vec.size() == 0;
+	}
+
+	public Integer getSize() {
+		return Queue_vec.size();
 	}
 }

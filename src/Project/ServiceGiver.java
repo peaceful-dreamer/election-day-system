@@ -1,61 +1,56 @@
 package Project;
 
-public class ServiceGiver {
+public class ServiceGiver implements Runnable {
     private Boolean isAvailable;
-    private Boolean isOpen;
     protected QueueManager queue;
+    protected QueueManager nextQueue;
 
     public ServiceGiver(QueueManager queue, QueueManager nextQueue) {
         isAvailable = true;
-        isOpen = true;
         this.queue = queue;
-        workDay(queue, nextQueue);
+        this.nextQueue = nextQueue;
     }
 
-    public void workDay(QueueManager queue, QueueManager nextQueue) {
-        Thread thread = new Thread(() -> {
-            // the check getIsOpen is redundant, but good for verbosity
-            while (getIsOpen()) {
-                synchronized (queue) {
-                    if (!queue.isEmpty()) {
-                        // checking again for synchronazion
-                        if (getIsOpen()) {
-                            isAvailable = false;
-                            Voter voter = queue.getFirstVoter();
+    public void run() {
+        while (true) {
+            Voter voter = null;
+            synchronized (queue) {
 
-                            // give service
-                            giveService(voter, nextQueue);
-
-                            isAvailable = true;
-                        }
-
+                while (queue.isEmpty() && !SimulationManager.isNoVoters()) {
+                    // wait for new voters
+                    try {
+                        queue.wait();
+                    } catch (InterruptedException e) {
+                        Helper.syncPrint("InterruptedException");
                     }
-                }
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    Helper.syncPrint("InterruptedException");
-                }
 
+                }
+                this.setIsAvailable(false);
+                voter = queue.getFirstVoter();
+
+                // give service
+                if (voter != null) {
+                    giveService(voter, nextQueue);
+                }
+                this.setIsAvailable(true);
+
+                // stop giving service after no voters are in queue and closing time passed
+                if (SimulationManager.isNoVoters() && !SimulationManager.getIsOpen()) {
+                    SimulationManager.notifyQueues();
+                    synchronized (queue) {
+                        queue.notifyAll();
+                    }
+                    Helper.syncPrint("%s: service giver stopped.", this.toString());
+
+                    break;
+                }
             }
-            close();
-        });
-        thread.start();
+        }
+
     }
 
     // for overiding
     public void giveService(Voter voter, QueueManager nextQueue) {
-    }
-
-    // for overiding
-    public void close() {
-    }
-
-    public void finishWorkDay() {
-        setIsOpen(false);
-        while (!getIsAvailable()) {
-            // wait until available
-        }
     }
 
     public synchronized void setIsAvailable(Boolean isAvailable) {
@@ -64,17 +59,5 @@ public class ServiceGiver {
 
     public synchronized Boolean getIsAvailable() {
         return isAvailable;
-    }
-
-    public synchronized void setIsOpen(Boolean isOpen) {
-        this.isOpen = isOpen;
-    }
-
-    public synchronized Boolean getIsOpen() {
-        return isOpen;
-    }
-
-    public synchronized QueueManager getQueue() {
-        return queue;
     }
 }

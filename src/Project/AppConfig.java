@@ -1,10 +1,13 @@
 package Project;
 
-public class AppConfig {
+public class AppConfig implements Runnable {
     public static String votersDataFilePath;
     public static String idsFilePath;
     public static Integer securityGuardNumber = null;
     public static Double timeUntilClosingNumber = null;
+
+    public void run() {
+    }
 
     public static Boolean setSecurityGuardNumber(Integer securityGuardNumber) {
         if (securityGuardNumber >= 1 && securityGuardNumber <= 4) {
@@ -29,19 +32,6 @@ public class AppConfig {
 
     public static Boolean isConfigured() {
         return securityGuardNumber != null && timeUntilClosingNumber != null;
-    }
-
-    public static void startApp() {
-        Integer securityGuardNumber = AppConfig.securityGuardNumber;
-        Double timeUntilClosingNumber = AppConfig.timeUntilClosingNumber;
-
-        System.out.println(String.format("%d Security Guards", securityGuardNumber));
-        System.out.println(String.format("%.1f Seconds Until Close",
-                timeUntilClosingNumber));
-
-        new SystemManager(AppConfig.votersDataFilePath, AppConfig.idsFilePath,
-                securityGuardNumber,
-                timeUntilClosingNumber);
     }
 
     public static Boolean isFilePathsSet() {

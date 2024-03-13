@@ -24,14 +24,17 @@ public class VotingSystem extends ServiceGiver {
         Helper.syncPrint("%s: %s %s voted.", this.toString(), voter.getFirstName(), voter.getLastName());
 
         VoteTicket voteTicket = createVoteTicket(voter);
+
+        // check if vote ticket was created succesfuly
         if (voteTicket != null) {
             // vote
             voteTickets.add(voteTicket);
+            Helper.syncPrint(voteTicket.toString());
         }
+
     }
 
     public VoteTicket createVoteTicket(Voter voter) {
-
         VoteTicket voteTicket = new VoteTicket(voter.getIdNumber(), voter.getAge(), voter.getElectedMayor(),
                 voter.getElectedParty());
         // use a random number 1-5 to dtermine if vote ticket was made OK, in chance of

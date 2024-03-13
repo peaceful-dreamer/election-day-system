@@ -1,19 +1,15 @@
 package Project;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import Queues.Queue;
-
-class Voter {
+class Voter implements Runnable {
     private String firstName;
     private String lastName;
     private String id;
     private int age;
+    private QueueManager entranceQueue;
     private String mayorSelection;
     private String listSelection;
     private int arrivalTime;
-    private Thread thread;
+    private Boolean finished = false;
 
     public Voter(String firstName, String lastName, String id, int age, String mayorSelection, String listSelection,
             int arrivalTime, QueueManager entranceQueue) {
@@ -24,40 +20,27 @@ class Voter {
         this.mayorSelection = mayorSelection;
         this.listSelection = listSelection;
         this.arrivalTime = arrivalTime;
-        goVote(entranceQueue);
+        this.entranceQueue = entranceQueue;
     }
 
-    public void goVote(QueueManager entranceQueue) {
-        Thread thread = new Thread(() -> {
-            goToKalpi(entranceQueue);
-            // if (isEnterAllowed()) {
-            // vote();
-            // }
-            // goHome();
-        });
-        thread.start();
-    }
-
-    public void goToKalpi(QueueManager entranceQueue) {
-        // handle the case of another thread interrupting this thread's sleep
-        try {
-            Thread.sleep(getArrivalTime() * 1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+    // voter is going to the Kalpi and then finishes running.
+    public void run() {
+        // wait until voter gets to Kalpi or it is cloesd
+        Integer timeLeft = getArrivalTime();
+        for (int i = 0; i < timeLeft && SimulationManager.getIsOpen(); i++) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
-        synchronized (entranceQueue) {
+
+        // go Kalpi is still open, enter the queue
+        if (SimulationManager.getIsOpen()) {
             entranceQueue.voterArrived(this);
+            Helper.syncPrint("entrance queue: %s %s got in the queue.",
+                    this.getFirstName(), this.getLastName());
         }
-    }
-
-    public Boolean passedCheckPoint() {
-        return true;
-    }
-
-    public void vote() {
-    }
-
-    public void goHome() {
     }
 
     public int getArrivalTime() {
@@ -88,8 +71,11 @@ class Voter {
         return age;
     }
 
-    public Thread getThread() {
-        return thread;
+    public void setFinished() {
+        finished = true;
     }
 
+    public Boolean getFinished() {
+        return finished;
+    }
 }

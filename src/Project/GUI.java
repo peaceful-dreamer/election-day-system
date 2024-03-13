@@ -11,7 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-public class VotingSystemGUI implements ActionListener {
+public class GUI implements ActionListener {
     private JLabel securityGuardLabel;
     private JLabel securityGuardErrorLabel;
     private JLabel closingTimeLabel;
@@ -25,8 +25,9 @@ public class VotingSystemGUI implements ActionListener {
     private int windowWidth;
     private int WindowHight;
     private JFrame frame;
+    private Boolean isRunning;
 
-    public VotingSystemGUI() {
+    public GUI() {
         windowWidth = 370;
         WindowHight = 250;
 
@@ -49,7 +50,7 @@ public class VotingSystemGUI implements ActionListener {
         closingTimeLabel.setBounds(20, 70, 200, 20);
         panel.add(closingTimeLabel);
 
-        closingTimeTextField = new JTextField("8");
+        closingTimeTextField = new JTextField("2");
         closingTimeTextField.setBounds(220, 70, 100, 20);
         panel.add(closingTimeTextField);
 
@@ -70,11 +71,6 @@ public class VotingSystemGUI implements ActionListener {
         start.setBounds(20, 160, 100, 30);
         close.setBounds(220, 160, 100, 30);
 
-        start.addActionListener(this);
-        start.setActionCommand("Start");
-        close.addActionListener(this);
-        close.setActionCommand("Close");
-
         panel.add(start);
         panel.add(close);
 
@@ -90,6 +86,11 @@ public class VotingSystemGUI implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent arg0) {
         if ("Start".equals(arg0.getActionCommand())) {
+
+            // reset for rerun
+            AppConfig.reset();
+
+            // validate input
             try {
                 Integer securityGuardNumber = Integer.parseInt(securityGuardTextField.getText());
                 Double timeUntilClosingNumber = Double.parseDouble(closingTimeTextField.getText());
@@ -105,8 +106,14 @@ public class VotingSystemGUI implements ActionListener {
                 typeErrorLabel.setText("only numbers allowed");
             }
 
+            // start simulation if configuration is valid
             if (AppConfig.isConfigured()) {
-                AppConfig.startApp();
+                SimulationManager simulationManager = new SimulationManager(AppConfig.votersDataFilePath,
+                        AppConfig.idsFilePath,
+                        AppConfig.securityGuardNumber,
+                        AppConfig.timeUntilClosingNumber);
+                Thread simulationThread = new Thread(simulationManager);
+                simulationThread.start();
             }
         } else if ("Close".equals(arg0.getActionCommand())) {
             frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
