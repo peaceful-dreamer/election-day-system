@@ -1,51 +1,61 @@
-package Project;
+package Management;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import Helper.Helper;
+import Queue.QueueManager;
+import ServiceGivers.SecurityGuard;
+import ServiceGivers.ServiceGiver;
+import ServiceGivers.VotingSystem;
+import Voter.Voter;
+import Votes.VoteTicket;
+import Votes.VotesCounter;
+
 public class SimulationManager implements Runnable {
+    // static attributes
     private static QueueManager entranceQueue;
     private static QueueManager voteQueue;
-    private List<Voter> voters;
-    private List<String> ids;
     private static List<SecurityGuard> guards;
     private static List<VotingSystem> votingSystems;
-    private List<VoteTicket> voteTickets;
-    private VotesCounter votesCounter;
     private static Double timeUntilClosingNumber;
     private static Integer securityGuardNumber;
-    private List<Thread> servicesGiverThreads;
-    private List<Thread> voterThreads;
-    private List<Runnable> runnables;
     private static Boolean isOpen;
     private static Boolean finished;
 
+    // object attributes
+    private List<Voter> voters;
+    private List<String> ids;
+    private List<VoteTicket> voteTickets;
+    private VotesCounter votesCounter;
+    private List<Thread> threads;
+    private List<Runnable> runnables;
+
     public SimulationManager(String votersDataFilePath, String idsFilePath, Integer securityGuardNumber,
             Double timeUntilClosingNumber) {
-        isOpen = true;
-        finished = false;
-
-        servicesGiverThreads = new ArrayList<Thread>();
-        voterThreads = new ArrayList<Thread>();
-        entranceQueue = new QueueManager();
-        voteQueue = new QueueManager();
-        voteTickets = new ArrayList<>();
-        votesCounter = new VotesCounter(voteTickets);
-        guards = new ArrayList<>();
-        votingSystems = new ArrayList<>();
-        runnables = new ArrayList<>();
-
+        // initialize static attributes
+        SimulationManager.isOpen = true;
+        SimulationManager.finished = false;
         SimulationManager.timeUntilClosingNumber = timeUntilClosingNumber;
         SimulationManager.securityGuardNumber = securityGuardNumber;
+        SimulationManager.guards = new ArrayList<>();
+        SimulationManager.votingSystems = new ArrayList<>();
+        SimulationManager.entranceQueue = new QueueManager();
+        SimulationManager.voteQueue = new QueueManager();
 
-        System.out.println("Kalpi is now open!");
+        // initialize object attributes
+        voteTickets = new ArrayList<>();
+        runnables = new ArrayList<>();
+        votesCounter = new VotesCounter(voteTickets);
+        threads = new ArrayList<Thread>();
+        voters = Helper.getVotersList(votersDataFilePath);
+        ids = Helper.getIDList(idsFilePath);
+
+        // print start message
+        System.out.println("\nThe voting palce is now open!");
         System.out.println(String.format("We shall close entrance in %.1f hours from now.",
                 timeUntilClosingNumber));
-        System.out
-                .println(String.format("You may get helpf from our %d lovely security guards.\n", securityGuardNumber));
-
-        voters = Helper.getVotersList(votersDataFilePath, entranceQueue);
-        ids = Helper.getIDList(idsFilePath);
+        System.out.println(String.format("the place is secured by %d of our lovely security.\n", securityGuardNumber));
 
         // create user provided number of guards
         for (Integer i = 0; i < securityGuardNumber; i++) {
@@ -57,38 +67,25 @@ public class SimulationManager implements Runnable {
             votingSystems.add(new VotingSystem(voteTickets, voteQueue));
         }
 
+        // add all runnables to a list
         runnables.addAll(voters);
         runnables.addAll(guards);
         runnables.addAll(votingSystems);
     }
 
     public void run() {
-
-        // start all runnables as threads and keep reference to them in a list
+        // start all runnables
         for (Runnable runnable : runnables) {
             Thread nThread = new Thread(runnable);
-            if (runnable instanceof Voter) {
-                voterThreads.add(nThread);
-            } else if (runnable instanceof ServiceGiver) {
-                servicesGiverThreads.add(nThread);
-            }
+            threads.add(nThread);
             nThread.start();
         }
 
         Thread votesCounterThread = new Thread(votesCounter);
         votesCounterThread.start();
 
-        // wait for all voters to get in entrance queue
-        for (Thread thread : voterThreads) {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        // wait for all service givers to finish
-        for (Thread thread : servicesGiverThreads) {
+        // wait for all runnables to finish
+        for (Thread thread : threads) {
             try {
                 thread.join();
             } catch (InterruptedException e) {
@@ -102,14 +99,11 @@ public class SimulationManager implements Runnable {
             SimulationManager.class.notifyAll();
         }
 
-        if (votesCounterThread.isAlive()) {
-            try {
-                votesCounterThread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        try {
+            votesCounterThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-
     }
 
     public static void notifyQueues() {
@@ -121,16 +115,34 @@ public class SimulationManager implements Runnable {
         }
     }
 
+    public static synchronized Boolean bothQueuesEmpty() {
+        return voteQueue.isEmpty() && entranceQueue.isEmpty();
+    }
+
+    public static Boolean isAllServiceGiversAvailible() {
+        List<ServiceGiver> serviceGivers = new ArrayList<>();
+        serviceGivers.addAll(guards);
+        serviceGivers.addAll(votingSystems);
+
+        for (ServiceGiver serviceGiver : serviceGivers) {
+            if (!serviceGiver.getIsAvailable()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static Boolean isNoVoters() {
+        return bothQueuesEmpty() && isAllServiceGiversAvailible();
+    }
+
+    // getters and setters
     public static Boolean getIsOpen() {
         return isOpen;
     }
 
     public static void setIsOpen(Boolean isOpen) {
         SimulationManager.isOpen = isOpen;
-    }
-
-    public static synchronized Boolean bothQueuesEmpty() {
-        return voteQueue.isEmpty() && entranceQueue.isEmpty();
     }
 
     public static Double getTimeUntilClosingNumber() {
@@ -153,20 +165,4 @@ public class SimulationManager implements Runnable {
         return voteQueue;
     }
 
-    public static Boolean isAllServiceGiversAvailible() {
-        List<ServiceGiver> serviceGivers = new ArrayList<>();
-        serviceGivers.addAll(guards);
-        serviceGivers.addAll(votingSystems);
-
-        for (ServiceGiver serviceGiver : serviceGivers) {
-            if (!serviceGiver.getIsAvailable()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public static Boolean isNoVoters() {
-        return bothQueuesEmpty() && isAllServiceGiversAvailible();
-    }
 }

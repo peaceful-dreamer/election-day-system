@@ -1,18 +1,20 @@
-package Project;
+package Voter;
 
-class Voter implements Runnable {
+import Helper.Helper;
+import Management.SimulationManager;
+
+public class Voter implements Runnable {
     private String firstName;
     private String lastName;
     private String id;
     private int age;
-    private QueueManager entranceQueue;
     private String mayorSelection;
     private String listSelection;
     private int arrivalTime;
     private Boolean finished = false;
 
     public Voter(String firstName, String lastName, String id, int age, String mayorSelection, String listSelection,
-            int arrivalTime, QueueManager entranceQueue) {
+            int arrivalTime) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.id = id;
@@ -20,12 +22,11 @@ class Voter implements Runnable {
         this.mayorSelection = mayorSelection;
         this.listSelection = listSelection;
         this.arrivalTime = arrivalTime;
-        this.entranceQueue = entranceQueue;
     }
 
-    // voter is going to the Kalpi and then finishes running.
+    // voter goes to the voting palce
     public void run() {
-        // wait until voter gets to Kalpi or it is cloesd
+        // wait until voter gets to voting palce or until the voting palce closes
         Integer timeLeft = getArrivalTime();
         for (int i = 0; i < timeLeft && SimulationManager.getIsOpen(); i++) {
             try {
@@ -35,9 +36,9 @@ class Voter implements Runnable {
             }
         }
 
-        // go Kalpi is still open, enter the queue
+        // if the voting palce is still open, enter the queue
         if (SimulationManager.getIsOpen()) {
-            entranceQueue.voterArrived(this);
+            SimulationManager.getEntranceQueue().voterArrived(this);
             Helper.syncPrint("entrance queue: %s %s got in the queue.",
                     this.getFirstName(), this.getLastName());
         }

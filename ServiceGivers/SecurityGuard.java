@@ -1,7 +1,11 @@
-package Project;
+package ServiceGivers;
 
 import java.util.List;
 import java.util.Random;
+
+import Helper.Helper;
+import Queue.QueueManager;
+import Voter.Voter;
 
 public class SecurityGuard extends ServiceGiver {
     private List<String> voterIdList;

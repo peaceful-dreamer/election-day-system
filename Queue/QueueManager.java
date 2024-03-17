@@ -1,6 +1,6 @@
-package Project;
+package Queue;
 
-import Queues.Queue;
+import Voter.Voter;
 
 public class QueueManager {
     private Queue<Voter> queue;
@@ -13,7 +13,7 @@ public class QueueManager {
     public synchronized void voterArrived(Voter voter) {
         synchronized (this) {
             queue.push(voter);
-            this.notifyAll();
+            this.notify();
         }
     }
 

@@ -1,4 +1,4 @@
-package Project;
+package Management;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,7 +25,6 @@ public class GUI implements ActionListener {
     private int windowWidth;
     private int WindowHight;
     private JFrame frame;
-    private Boolean isRunning;
 
     public GUI() {
         windowWidth = 370;
@@ -74,7 +73,7 @@ public class GUI implements ActionListener {
         panel.add(start);
         panel.add(close);
 
-        frame = new JFrame("Kalpi simulator");
+        frame = new JFrame("voting palce simulator");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         frame.setContentPane(panel);
@@ -95,11 +94,11 @@ public class GUI implements ActionListener {
                 Integer securityGuardNumber = Integer.parseInt(securityGuardTextField.getText());
                 Double timeUntilClosingNumber = Double.parseDouble(closingTimeTextField.getText());
 
-                if (!AppConfig.setSecurityGuardNumber(securityGuardNumber)) {
+                if (!Helper.Helper.setSecurityGuardNumber(securityGuardNumber)) {
                     securityGuardErrorLabel.setText("only 1-4 allowed");
                 }
 
-                if (!AppConfig.setTimeUntilClosingNumber(timeUntilClosingNumber)) {
+                if (!Helper.Helper.setTimeUntilClosingNumber(timeUntilClosingNumber)) {
                     closingTimeErrorLabel.setText("only 0.0-24.0 allowed");
                 }
             } catch (NumberFormatException except) {

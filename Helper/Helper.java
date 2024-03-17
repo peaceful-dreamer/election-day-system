@@ -1,4 +1,4 @@
-package Project;
+package Helper;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -7,6 +7,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+
+import Management.AppConfig;
+import Voter.Voter;
 
 public class Helper {
     public static synchronized void syncPrint(String format, Object... args) {
@@ -36,7 +39,7 @@ public class Helper {
         return IDs;
     }
 
-    public static List<Voter> getVotersList(String filePath, QueueManager entranceQueue) {
+    public static List<Voter> getVotersList(String filePath) {
         List<String> lines = readLinesFromFile(filePath);
         List<Voter> voters = new ArrayList<>();
 
@@ -54,8 +57,7 @@ public class Helper {
             int arrivalTime = Integer.parseInt(parts[6]);
 
             // Create a new Voter object and add it to the list
-            Voter voter = new Voter(firstName, lastName, id, age, mayorSelection, listSelection, arrivalTime,
-                    entranceQueue);
+            Voter voter = new Voter(firstName, lastName, id, age, mayorSelection, listSelection, arrivalTime);
             voters.add(voter);
         }
         return voters;
@@ -70,5 +72,21 @@ public class Helper {
                 System.err.println("Thread Interrupted");
             }
         }
+    }
+
+    public static Boolean setSecurityGuardNumber(Integer securityGuardNumber) {
+        if (securityGuardNumber >= 1 && securityGuardNumber <= 4) {
+            AppConfig.securityGuardNumber = securityGuardNumber;
+            return true;
+        }
+        return false;
+    }
+
+    public static Boolean setTimeUntilClosingNumber(Double timeUntilClosingNumber) {
+        if (timeUntilClosingNumber >= 0.0 && timeUntilClosingNumber <= 24.0) {
+            AppConfig.timeUntilClosingNumber = timeUntilClosingNumber;
+            return true;
+        }
+        return false;
     }
 }

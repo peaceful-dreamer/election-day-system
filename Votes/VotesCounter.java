@@ -14,20 +14,19 @@ public class VotesCounter implements Runnable {
     public void run() {
         waitToCloseEntrance();
         waitUntilEverybodyFinished();
-        Helper.syncPrint("Voting is over, let’s start counting");
+        Helper.syncPrint("\nVoting is over, let’s start counting");
         countTickets();
     }
 
     public static void waitToCloseEntrance() {
-        // sleep until it is time to stop new voters from entering and handle errors if
-        // needed
+        // wait for close time
         try {
-            Thread.sleep((long) (SimulationManager.getTimeUntilClosingNumber() * 1000)); // Convert seconds to
-                                                                                         // milliseconds
+            Thread.sleep((long) (SimulationManager.getTimeUntilClosingNumber() * 1000));
         } catch (InterruptedException e) {
             Helper.syncPrint("InterruptedException");
         }
 
+        // entrance is closed
         SimulationManager.setIsOpen(false);
     }
 
@@ -35,6 +34,7 @@ public class VotesCounter implements Runnable {
         synchronized (SimulationManager.class) {
             while (!SimulationManager.getFinished()) {
                 try {
+                    // wait for service providers to finish and queues to be empty
                     SimulationManager.class.wait();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -70,11 +70,6 @@ public class VotesCounter implements Runnable {
         // Announce the results
         Helper.syncPrint("The next mayor is: " + nextMayor);
         Helper.syncPrint("The list with most votes is: " + nextParty);
-        // try {
-        // Thread.currentThread().join();
-        // } catch (InterruptedException e) {
-        // e.printStackTrace();
-        // }
     }
 
     private void incrementVote(Map<String, Integer> voteMap, String key) {

@@ -1,4 +1,4 @@
-package Project;
+package Votes;
 
 public class VoteTicket {
     private int ticketIndex;

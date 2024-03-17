@@ -1,7 +1,12 @@
-package Project;
+package ServiceGivers;
 
 import java.util.List;
 import java.util.Random;
+
+import Helper.Helper;
+import Queue.QueueManager;
+import Votes.VoteTicket;
+import Voter.Voter;
 
 public class VotingSystem extends ServiceGiver {
     private List<VoteTicket> voteTickets;
@@ -13,10 +18,9 @@ public class VotingSystem extends ServiceGiver {
 
     @Override
     public void giveService(Voter voter, QueueManager nextQueue) {
-        // voting process takes 2 seconds
         try {
-            // Sleep for the random duration
-            Thread.sleep(2000 - 100); // wait for 2 seconds minus 100ms for accepting the voter fron the queue
+            // voting process takes 2 seconds
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
             Helper.syncPrint("InterruptedException");
         }

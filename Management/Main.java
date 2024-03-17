@@ -1,4 +1,4 @@
-package Project;
+package Management;
 
 public class Main {
     public static void main(String[] args) {
